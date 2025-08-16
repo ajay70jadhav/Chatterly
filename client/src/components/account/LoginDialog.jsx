@@ -23,19 +23,20 @@ const Qrcode = styled("img")({ height: 264, width: 264, margin: "50px 0px 0px 50
 
 const Title = styled(Typography)`
   font-size: 26px;
-  color: ;#525252;
+  color: #525252;
   font-weight: 300;
   font-family: inherit;
-  margin-bottom:25px;
+  margin-bottom: 25px;
   color: #4a4a4a;
 `;
 
 const StyledList = styled(List)`
-& > li{ padding:0; 
-        margin-top 25px;
-        font-size:18px; 
-        line-height:20px
-       }
+  & > li {
+    padding: 0;
+    margin-top: 25px;
+    font-size: 18px;
+    line-height: 20px;
+  }
 `;
 
 const Component = styled(Box)`
@@ -69,7 +70,14 @@ const LoginDialog = () => {
         </Container>
         <Box style={{ position: "relative" }}>
           <Qrcode src={qrCodeImage} alt="" />
-          <Box style={{ position: "absolute", top: "50%", transform: "translateX(25%)" }}>
+          <Box
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
             <GoogleLogin onSuccess={onLoginSuccess} onError={onLoginError} />
           </Box>
         </Box>

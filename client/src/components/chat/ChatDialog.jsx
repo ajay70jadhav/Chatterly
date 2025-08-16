@@ -1,7 +1,7 @@
 import { Dialog, Box, styled } from "@mui/material";
 //components
 import Menu from "./menu/Menu";
-import EmptyChat from "./chat/EmptyChat";
+import EmptyChat from "./chat/Emptychat";
 const Component = styled(Box)`
   display: flex;
 `;
@@ -10,8 +10,8 @@ const LeftComponent = styled(Box)`
 `;
 const RightComponent = styled(Box)`
   width: 73%;
-  min-width: 450px;
-  background-color: red;
+  min-width: 300px;
+  height: 100%;
   border-left: 1px solid rgba(0, 0, 0, 0.14);
 `;
 const dialogstyle = {
@@ -27,7 +27,12 @@ const dialogstyle = {
 const ChatDialog = () => {
   return (
     <>
-      <Dialog open={true} slotProps={{ paper: { sx: dialogstyle } }} hideBackdrop={true}>
+      <Dialog
+        open={true}
+        slotProps={{ paper: { sx: dialogstyle } }}
+        hideBackdrop={true}
+        maxWidth={"md"}
+      >
         <Component>
           <LeftComponent>
             <Menu />

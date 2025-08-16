@@ -1,4 +1,15 @@
+import React from "react";
+import { Box } from "@mui/material";
+//components
+import Header from "./Header";
+import Search from "./Search";
+
 const Menu = () => {
-  return <p>Hello from menu</p>;
+  return (
+    <Box>
+      <Header />
+      <Search />
+    </Box>
+  );
 };
 export default Menu;
