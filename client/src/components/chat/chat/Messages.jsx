@@ -12,10 +12,15 @@ const Component = styled(Box)`
 `;
 
 const Messages = () => {
+  const sendText = (e) => {
+    console.log(e);
+    const code = e.keyCode || e.which;
+  };
+
   return (
     <Wrapper>
       <Component></Component>
-      <Footer />
+      <Footer sendText={sendText} />
     </Wrapper>
   );
 };

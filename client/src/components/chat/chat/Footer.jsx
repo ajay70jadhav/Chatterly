@@ -30,7 +30,7 @@ const ClipIcon = styled(AttachFile)`
   transform: rotate(40deg);
 `;
 
-const Footer = () => {
+const Footer = ({ sendText }) => {
   const [text, setText] = useState("");
   return (
     <Container>
@@ -40,7 +40,7 @@ const Footer = () => {
         <InputField
           placeholder="Type a message"
           onChange={(e) => setText(e.target.value)}
-          // onKeyPress={() =>}
+          onKeyDown={(e) => sendText(e)} // pass event to parent
         />
       </Search>
       <Mic />
