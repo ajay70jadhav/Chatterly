@@ -12,29 +12,33 @@ const Component = styled(Box)`
 
 const StyledDivider = styled(Divider)`
   margin: 0 0 0 70px;
-backgroundL#e9edef;
-opacity: 0.6`;
+  background: #e9edef;
+  opacity: 0.6;
+`;
 
 //component
-const Conversations = () => {
+const Conversations = ({ text }) => {
   const [users, setUsers] = useState([]);
   const { account } = useContext(AccountContext);
   useEffect(() => {
     const fetchData = async () => {
       let res = await getUsers();
-      setUsers(res);
+      const filteredData = res.filter((user) =>
+        user.name.toLowerCase().includes(text.toLowerCase())
+      );
+      setUsers(filteredData);
     };
     fetchData();
-  }, []);
+  }, [text]);
   return (
     <Component>
       {users.map(
         (user) =>
           user.sub !== account.sub && (
-            <>
-              <Conversation key={user._id} user={user} />
+            <Box key={user._id}>
+              <Conversation user={user} />
               <StyledDivider />
-            </>
+            </Box>
           )
       )}
     </Component>

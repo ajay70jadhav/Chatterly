@@ -10,7 +10,7 @@ const Image = styled("img")({
   width: 200,
   height: 200,
   borderRadius: "50%",
-  padding: "25px ",
+  padding: "25px",
 });
 
 const BoxWrapper = styled(Box)`
