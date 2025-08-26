@@ -48,6 +48,9 @@ const Header = () => {
           onClick={() => {
             toggleDrawer();
           }}
+          onError={(e) => {
+            e.target.src = "../../../../public/Images/Default-Avatar.jpg"; // fallback if broken link
+          }}
         />
         <Wrapper>
           <MessageIcon />

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const conversationSchema = new mongoose.Schema(
+const ConversationSchema = new mongoose.Schema(
   {
     members: {
       type: Array,
@@ -12,5 +12,5 @@ const conversationSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-const conversation = mongoose.model("Conversation", conversationSchema);
+const conversation = mongoose.model("Conversation", ConversationSchema);
 export default conversation;
