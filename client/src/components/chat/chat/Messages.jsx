@@ -23,13 +23,19 @@ const Container = styled(Box)`
 const Messages = ({ person, conversation }) => {
   const [value, setValue] = useState("");
   const [messages, setMessages] = useState([]);
-  const [newMessageFlag, setNewMessageFlag] = useState(false);
   const [file, setFile] = useState();
   const [image, setImage] = useState("");
+  const [incomingMessage, setIncomingMessage] = useState(null);
 
   const scrollRef = useRef();
 
-  const { account } = useContext(AccountContext);
+  const { account, socket, newMessageFlag, setNewMessageFlag } = useContext(AccountContext);
+
+  useEffect(() => {
+    socket.current.on("getMessage", (data) => {
+      setIncomingMessage({ ...data, createdAt: Date.now() });
+    });
+  }, []);
 
   useEffect(() => {
     const getMessageDetails = async () => {
@@ -42,6 +48,12 @@ const Messages = ({ person, conversation }) => {
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ transition: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    incomingMessage &&
+      conversation?.members?.includes(incomingMessage.senderId) &&
+      setMessages((prev) => [...prev, incomingMessage]);
+  }, [incomingMessage, conversation]);
 
   const sendText = async (e) => {
     const code = e.keyCode || e.which;
@@ -65,6 +77,8 @@ const Messages = ({ person, conversation }) => {
           text: image,
         };
       }
+
+      socket.current.emit("sendMessage", message); //here i am sending the message in real time to the socket server
 
       // console.log("📤 Sending message:", message);
       await newMessage(message);
