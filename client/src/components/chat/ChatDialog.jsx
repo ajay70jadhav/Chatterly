@@ -3,7 +3,7 @@ import { Dialog, Box, styled } from "@mui/material";
 import { AccountContext } from "../../context/AccountProvider";
 //components
 import Menu from "./menu/Menu";
-import EmptyChat from "./chat/Emptychat";
+import EmptyChat from "./chat/EmptyChat";
 import ChatBox from "./chat/ChatBox";
 const Component = styled(Box)`
   display: flex;
