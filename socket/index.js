@@ -1,30 +1,34 @@
-//==========Updated code==========//
+//==========Updated Socket.IO code for Render==========//
+import { createServer } from "http";
 import { Server } from "socket.io";
 
 // Use dynamic port for Render deployment
-const PORT = process.env.PORT || 8000; // Render provides PORT, fallback to 8000 locally
+const PORT = process.env.PORT || 9000; // Render provides PORT, fallback to 9000 locally
 
-// Initialize Socket.IO without a fixed port
-const io = new Server({
+// Create an HTTP server (required for Socket.IO on a platform like Render)
+const httpServer = createServer();
+
+// Initialize Socket.IO server with CORS
+const io = new Server(httpServer, {
   cors: {
-    origin: "https://chatterllly.netlify.app", // Your Netlify frontend URL
+    origin: "https://chatterllly.netlify.app", // Your deployed frontend URL
     methods: ["GET", "POST"],
   },
 });
 
-console.log(`⚡ Socket.IO server is running on port ${PORT}`);
+console.log(`⚡ Socket.IO server will run on port ${PORT}`);
 
 // Array to store connected users
 let users = [];
 
-// Add user to users array if not already added
+// Add user if not already present
 const addUser = (userData, socketId) => {
   if (!users.some((user) => user.sub === userData.sub)) {
     users.push({ ...userData, socketId });
   }
 };
 
-// Get a user by their ID
+// Get user by ID
 const getUser = (userId) => {
   return users.find((user) => user.sub === userId);
 };
@@ -54,8 +58,8 @@ io.on("connection", (socket) => {
   });
 });
 
-// Start Socket.IO server on dynamic port
-io.listen(PORT, () => console.log(`🚀 Socket.IO listening on PORT ${PORT}`));
+// Start HTTP server for Socket.IO
+httpServer.listen(PORT, () => console.log(`🚀 Socket.IO listening on PORT ${PORT}`));
 
 //////////////////////////////////////////////
 //============ OLD CODE==========//
