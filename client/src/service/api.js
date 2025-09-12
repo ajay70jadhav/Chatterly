@@ -1,6 +1,7 @@
 import axios from "axios"; // import axios for API calls
 
-const url = "http://localhost:8000"; // backend base URL
+//const url = "http://localhost:8000"; // backend base URL
+const url = "https://chatterly-backend1.onrender.com";
 
 // function to add user by sending POST request
 export const addUser = async (data) => {
