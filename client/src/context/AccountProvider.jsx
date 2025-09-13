@@ -17,7 +17,7 @@ const AccountProvider = ({ children }) => {
   useEffect(() => {
     // ===================== CHANGE =====================
     // Connect to your deployed Socket.IO server on Render
-    socket.current = io("https://chatterly-backend1.onrender.com");
+    socket.current = io("https://chatterly-socketio.onrender.com/");
     // ==================================================
   }, []);
 
