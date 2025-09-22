@@ -1,64 +1,73 @@
-//==========Updated Socket.IO code for Render==========//
-import { createServer } from "http";
-import { Server } from "socket.io";
+// Import necessary modules
+import { createServer } from "http"; // To create an HTTP server
+import { Server } from "socket.io"; // Socket.IO server
 
-// Use dynamic port for Render deployment
-const PORT = process.env.PORT || 9000; // Render provides PORT, fallback to 9000 locally
+// Use dynamic port: Render provides process.env.PORT, fallback to 9000 for local testing
+const PORT = process.env.PORT || 9000;
 
-// Create an HTTP server (required for Socket.IO on a platform like Render)
+// Create an HTTP server instance
 const httpServer = createServer();
 
-// Initialize Socket.IO server with CORS
+// Initialize Socket.IO server
+// We need to configure CORS so that frontend can connect
 const io = new Server(httpServer, {
   cors: {
-    origin: "https://chatterllly.netlify.app", // Your deployed frontend URL
-    methods: ["GET", "POST"],
+    // Allow both local frontend and deployed frontend to connect
+    origin: ["http://localhost:5173", "https://chatterllly.netlify.app"],
+    methods: ["GET", "POST"], // Only allow GET and POST requests
   },
 });
 
+// Log that server is starting
 console.log(`⚡ Socket.IO server will run on port ${PORT}`);
 
 // Array to store connected users
 let users = [];
 
-// Add user if not already present
+// Function to add a user if not already connected
 const addUser = (userData, socketId) => {
+  // Check if user already exists by their 'sub' ID
   if (!users.some((user) => user.sub === userData.sub)) {
+    // Add user to users array with their socketId
     users.push({ ...userData, socketId });
   }
 };
 
-// Get user by ID
+// Function to get a user by their ID
 const getUser = (userId) => {
   return users.find((user) => user.sub === userId);
 };
 
-// Handle socket connections
+// Listen for new socket connections
 io.on("connection", (socket) => {
   console.log("👤 User connected with ID:", socket.id);
 
-  // When a new user joins
+  // Event: Add a new user to the users list
   socket.on("addUsers", (userData) => {
     addUser(userData, socket.id);
-    io.emit("getUsers", users); // Send updated users list to all clients
+    // Emit updated users list to all connected clients
+    io.emit("getUsers", users);
   });
 
-  // When a message is sent
+  // Event: Send a message from one user to another
   socket.on("sendMessage", (data) => {
-    const user = getUser(data.receiverId);
+    const user = getUser(data.receiverId); // Find receiver by ID
     if (user) {
-      io.to(user.socketId).emit("getMessage", data); // Send message only to receiver
+      // Send the message only to the receiver's socket
+      io.to(user.socketId).emit("getMessage", data);
     }
   });
 
-  // When a user disconnects
+  // Event: Handle user disconnect
   socket.on("disconnect", () => {
+    // Remove user from users array
     users = users.filter((user) => user.socketId !== socket.id);
-    io.emit("getUsers", users); // Update all clients
+    // Update all clients with new users list
+    io.emit("getUsers", users);
   });
 });
 
-// Start HTTP server for Socket.IO
+// Start the HTTP server to listen on the specified port
 httpServer.listen(PORT, () => console.log(`🚀 Socket.IO listening on PORT ${PORT}`));
 
 //////////////////////////////////////////////
