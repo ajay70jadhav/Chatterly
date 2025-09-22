@@ -16,40 +16,57 @@ const StyledDivider = styled(Divider)`
   opacity: 0.6;
 `;
 
-//component
 const Conversations = ({ text }) => {
   const [users, setUsers] = useState([]);
   const { account, socket, setActiveUsers } = useContext(AccountContext);
 
+  // ===================== FETCH USERS =====================
   useEffect(() => {
     const fetchData = async () => {
-      let res = await getUsers();
-      const filteredData = res.filter((user) =>
-        user.name.toLowerCase().includes(text.toLowerCase())
+      if (!account) return; // wait until account is available
+      const res = await getUsers();
+      if (!res) return; // safety check in case API fails
+
+      const filteredData = res.filter(
+        (user) =>
+          user.sub !== account.sub && // exclude logged-in user
+          user.name && // ensure name exists
+          user.name.toLowerCase().includes(text.toLowerCase())
       );
+
       setUsers(filteredData);
     };
-    fetchData();
-  }, [text]);
 
+    fetchData();
+  }, [text, account]); // added 'account' dependency
+
+  // ===================== SOCKET USERS =====================
   useEffect(() => {
+    if (!account) return; // ensure account exists before emitting
+
     socket.current.emit("addUsers", account);
     socket.current.on("getUsers", (users) => {
       setActiveUsers(users);
     });
-  }, [account]);
+
+    // clean up listener to avoid duplicate events
+    return () => socket.current.off("getUsers");
+  }, [account, socket, setActiveUsers]);
+
   return (
     <Component>
-      {users.map(
-        (user) =>
-          user.sub !== account.sub && (
-            <Box key={user._id}>
-              <Conversation user={user} />
-              <StyledDivider />
-            </Box>
-          )
+      {users.length === 0 ? (
+        <p style={{ textAlign: "center", marginTop: "20px" }}>No users found</p>
+      ) : (
+        users.map((user) => (
+          <Box key={user._id}>
+            <Conversation user={user} />
+            <StyledDivider />
+          </Box>
+        ))
       )}
     </Component>
   );
 };
+
 export default Conversations;
