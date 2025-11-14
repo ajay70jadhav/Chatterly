@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Box, InputBase, styled } from "@mui/material";
-import { EmojiEmotionsOutlined, AttachFile, Mic } from "@mui/icons-material";
+import { EmojiEmotionsOutlined, AttachFile, Mic, Send } from "@mui/icons-material";
 import { uploadFile } from "../../../service/api";
 
 const Container = styled(Box)`
@@ -53,6 +53,12 @@ const Footer = ({ sendText, setValue, value, file, setFile, setImage }) => {
     setValue(e.target.files[0].name);
   };
 
+  const handleSendClick = () => {
+    if (value.trim()) {
+      sendText({ keyCode: 13, which: 13 }); // Simulate Enter key press
+    }
+  };
+
   return (
     <Container>
       <EmojiEmotionsOutlined />
@@ -77,7 +83,13 @@ const Footer = ({ sendText, setValue, value, file, setFile, setImage }) => {
           value={value}
         />
       </Search>
-      <Mic />
+      <Send
+        onClick={handleSendClick}
+        style={{
+          cursor: value.trim() ? "pointer" : "not-allowed",
+          color: value.trim() ? "#007bff" : "#919191",
+        }}
+      />
     </Container>
   );
 };
