@@ -30,6 +30,37 @@ const AccountProvider = ({ children }) => {
     socket.current = io("https://chatterly-socketio.onrender.com/");
   }, []);
 
+  // ===================== SOCKET.IO EVENT LISTENERS =====================
+  // Listen for real-time notifications
+  useEffect(() => {
+    if (!socket.current) return;
+
+    // Listen for new message notifications
+    socket.current.on("newMessageNotification", (data) => {
+      // Only show notification if not currently viewing the chat
+      if (person.sub !== data.senderId) {
+        // Trigger a custom event that NotificationManager will listen to
+        window.dispatchEvent(new CustomEvent("newMessageNotification", { detail: data }));
+      }
+    });
+
+    // Listen for offline notifications when user comes online
+    socket.current.on("getOfflineNotifications", (notifications) => {
+      notifications.forEach((notif) => {
+        // Only show notifications for chats not currently being viewed
+        if (person.sub !== notif.senderId) {
+          window.dispatchEvent(new CustomEvent("newMessageNotification", { detail: notif }));
+        }
+      });
+    });
+
+    // Cleanup listeners
+    return () => {
+      socket.current?.off("newMessageNotification");
+      socket.current?.off("getOfflineNotifications");
+    };
+  }, [socket, person.sub]);
+
   // ===================== PROVIDE GLOBAL STATE =====================
   // Makes all state variables and functions available to any component
   return (
@@ -42,7 +73,7 @@ const AccountProvider = ({ children }) => {
         socket, // Socket.IO connection for real-time messaging
         activeUsers, // Array of currently online users
         setActiveUsers, // Function to update online users list
-        newMessageFlag, // Boolean to trigger message list refresh
+        newMessageFlag, // Boolean to trigger message refresh
         setNewMessageFlag, // Function to toggle message refresh flag
       }}
     >
@@ -53,48 +84,3 @@ const AccountProvider = ({ children }) => {
 };
 
 export default AccountProvider;
-
-/////////////////////////////////////////
-//============OLD CODE=========//
-/*
-
-import { createContext, useState, useRef, useEffect } from "react";
-
-import { io } from "socket.io-client";
-
-export const AccountContext = createContext(null);
-
-const AccountProvider = ({ children }) => {
-  const [account, setAccount] = useState();
-  const [person, setPerson] = useState({});
-  const [activeUsers, setActiveUsers] = useState([]);
-  const [newMessageFlag, setNewMessageFlag] = useState(false);
-
-  const socket = useRef();
-
-  useEffect(() => {
-    socket.current = io("ws://localhost:9000");
-  }, []);
-
-  return (
-    <AccountContext.Provider
-      value={{
-        account,
-        setAccount,
-        person,
-        setPerson,
-        socket,
-        activeUsers,
-        setActiveUsers,
-        newMessageFlag,
-        setNewMessageFlag,
-      }}
-    >
-      {children}
-    </AccountContext.Provider>
-  );
-};
-
-export default AccountProvider;
-
-*/
