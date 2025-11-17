@@ -1,18 +1,21 @@
-import axios from "axios"; // import axios for API calls
+import axios from "axios"; // HTTP client for making API requests to backend
 
-//const url = "http://localhost:8000"; // backend base URL
+// Backend API base URL - change to localhost for development
+// Currently pointing to deployed backend on Render
 const url = "https://chatterly-backend1.onrender.com";
 
-// function to add user by sending POST request
+// ===================== USER MANAGEMENT =====================
+// Adds a new user to the database after Google OAuth login
 export const addUser = async (data) => {
   try {
-    // console.log("📡 Calling addUser API with:", data);
-    await axios.post(`${url}/add`, data); // send data to backend
-    // console.log("User added successfully"); // success log
+    // Posts user profile data (name, email, picture, Google ID) to backend
+    await axios.post(`${url}/add`, data);
   } catch (error) {
-    console.log("Error while calling addUser API:", error.message); // error log
+    console.log("Error while calling addUser API:", error.message);
   }
 };
+
+// Retrieves list of all registered users (excluding current user)
 export const getUsers = async () => {
   try {
     let res = await axios.get(`${url}/users`);
@@ -22,14 +25,18 @@ export const getUsers = async () => {
   }
 };
 
+// ===================== CONVERSATION MANAGEMENT =====================
+// Creates a new conversation between two users
 export const setConversation = async (data) => {
   try {
+    // Creates conversation record in database with sender/receiver IDs
     await axios.post(`${url}/conversation/add`, data);
   } catch (error) {
     console.log("Error while calling setConversation api", error.message);
   }
 };
 
+// Retrieves existing conversation between two users
 export const getConversation = async (data) => {
   try {
     let res = await axios.post(`${url}/conversation/get`, data);
@@ -38,6 +45,9 @@ export const getConversation = async (data) => {
     console.log("Error while calling getConversation api", error.message);
   }
 };
+
+// ===================== FILE SHARING (DISABLED) =====================
+// Uploads files to MongoDB GridFS storage (currently commented out)
 export const uploadFile = async (data) => {
   try {
     return await axios.post(`${url}/file/upload`, data, {
@@ -47,14 +57,19 @@ export const uploadFile = async (data) => {
     console.log("error while calling uploadFile api", error.message);
   }
 };
+
+// ===================== MESSAGE HANDLING =====================
+// Saves new message to database
 export const newMessage = async (data) => {
   try {
+    // Stores message with sender, receiver, conversation ID, and message content
     await axios.post(`${url}/message/add`, data);
   } catch (error) {
     console.log("error while calling newMessage api", error.message);
   }
 };
 
+// Retrieves all messages for a specific conversation
 export const getMessages = async (id) => {
   try {
     let res = await axios.get(`${url}/message/get/${id}`);

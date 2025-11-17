@@ -1,9 +1,13 @@
 import { useContext, useState, useEffect, useRef } from "react";
 import { Box, styled } from "@mui/material";
+
+// Global state management for user accounts and socket connections
 import { AccountContext } from "../../../context/AccountProvider";
-//api
+
+// API calls for messaging functionality
 import { newMessage, getMessages } from "../../../service/api";
-//components
+
+// Local components for chat interface
 import Footer from "./Footer";
 import Message from "./Message";
 
@@ -29,41 +33,52 @@ const Container = styled(Box)`
 `;
 
 const Messages = ({ person, conversation }) => {
-  const [value, setValue] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [file, setFile] = useState();
-  const [image, setImage] = useState("");
-  const [incomingMessage, setIncomingMessage] = useState(null);
+  // LOCAL STATE: Component-specific data that doesn't need global sharing
+  const [value, setValue] = useState(""); // Current message input text
+  const [messages, setMessages] = useState([]); // Chat messages for current conversation
+  const [file, setFile] = useState(); // Selected file for sharing (currently disabled)
+  const [image, setImage] = useState(""); // Image URL after file upload
+  const [incomingMessage, setIncomingMessage] = useState(null); // Real-time incoming messages
 
+  // REFERENCE: For scrolling to bottom of chat when new messages arrive
   const scrollRef = useRef();
 
+  // GLOBAL STATE: Shared across the entire app via AccountContext
   const { account, socket, newMessageFlag, setNewMessageFlag } = useContext(AccountContext);
 
-  // Listen for incoming messages
+  // ===================== REAL-TIME MESSAGE LISTENER =====================
+  // Listens for incoming messages from other users via Socket.IO
   useEffect(() => {
     socket.current?.on("getMessage", (data) => {
+      // Add timestamp to incoming message and store it temporarily
       setIncomingMessage({ ...data, createdAt: Date.now() });
     });
   }, [socket]);
 
-  // Fetch messages when conversation changes
+  // ===================== LOAD CHAT HISTORY =====================
+  // Fetches previous messages when user switches to a new conversation
   useEffect(() => {
     const getMessageDetails = async () => {
-      if (!conversation?._id) return; // <-- safety check
+      if (!conversation?._id) return; // Safety check: valid conversation required
+
+      // Fetch all messages for this conversation from database
       const data = await getMessages(conversation._id);
-      setMessages(data || []);
+      setMessages(data || []); // Set empty array if no messages found
     };
     getMessageDetails();
-  }, [conversation?._id, newMessageFlag]);
+  }, [conversation?._id, newMessageFlag]); // Reload when conversation changes or new message sent
 
-  // Scroll to the latest message
+  // ===================== AUTO-SCROLL TO LATEST MESSAGE =====================
+  // Automatically scrolls chat to bottom when new messages arrive
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages]); // Trigger when messages array updates
 
-  // Add incoming messages to the list
+  // ===================== DISPLAY INCOMING MESSAGES =====================
+  // Adds real-time incoming messages to the chat display
   useEffect(() => {
     if (incomingMessage && conversation?.members?.includes(incomingMessage.senderId)) {
+      // Only show message if it's for the current conversation
       setMessages((prev) => [...prev, incomingMessage]);
     }
   }, [incomingMessage, conversation]);
