@@ -15,11 +15,19 @@ const Header = styled(AppBar)`
   height: 125px;
   background-color: #00a884;
   box-shadow: none;
+
+  @media (max-width: 768px) {
+    height: 80px;
+  }
 `;
 const LoginHeader = styled(AppBar)`
   height: 220px;
   background-color: #00bfa5;
   box-shadow: none;
+
+  @media (max-width: 768px) {
+    height: 120px;
+  }
 `;
 const Messanger = () => {
   const { account } = useContext(AccountContext);

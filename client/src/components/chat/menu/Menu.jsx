@@ -7,16 +7,16 @@ import Search from "./Search";
 import Conversations from "./Conversations";
 import { AccountContext } from "../../../context/AccountProvider";
 
-const Menu = () => {
+const Menu = ({ setMobileView }) => {
   const [text, setText] = useState("");
   const { account } = useContext(AccountContext);
 
   return (
-    <Box>
+    <Box style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <Header />
       <Search setText={setText} />
       {account ? (
-        <Conversations text={text} />
+        <Conversations text={text} setMobileView={setMobileView} />
       ) : (
         <p style={{ textAlign: "center", marginTop: "20px" }}>Loading users...</p>
       )}

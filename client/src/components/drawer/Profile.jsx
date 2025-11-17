@@ -39,7 +39,13 @@ const Profile = () => {
   return (
     <>
       <ImageContainer>
-        <Image src={account.picture} alt="" />
+        <Image
+          src={account.picture}
+          alt=""
+          onError={(e) => {
+            e.target.src = "/Images/Default-Avatar.jpg";
+          }}
+        />
       </ImageContainer>
       <BoxWrapper>
         <Typography>Your name</Typography>

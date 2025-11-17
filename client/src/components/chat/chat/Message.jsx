@@ -14,6 +14,10 @@ const Own = styled(Box)`
   display: flex;
   border-radius: 10px;
   word-break: break-word;
+
+  @media (max-width: 768px) {
+    max-width: 80%;
+  }
 `;
 const Wrapper = styled(Box)`
   background: #ffffff;
@@ -23,6 +27,10 @@ const Wrapper = styled(Box)`
   display: flex;
   border-radius: 10px;
   word-break: break-word;
+
+  @media (max-width: 768px) {
+    max-width: 80%;
+  }
 `;
 
 const Text = styled(Typography)`

@@ -8,6 +8,11 @@ import Conversation from "./Conversation";
 const Component = styled(Box)`
   height: 81vh;
   overflow: overlay;
+
+  @media (max-width: 768px) {
+    height: auto;
+    flex: 1;
+  }
 `;
 
 const StyledDivider = styled(Divider)`
@@ -16,7 +21,7 @@ const StyledDivider = styled(Divider)`
   opacity: 0.6;
 `;
 
-const Conversations = ({ text }) => {
+const Conversations = ({ text, setMobileView }) => {
   const [users, setUsers] = useState([]);
   const { account, socket, setActiveUsers } = useContext(AccountContext);
 
@@ -60,7 +65,7 @@ const Conversations = ({ text }) => {
       ) : (
         users.map((user) => (
           <Box key={user._id}>
-            <Conversation user={user} />
+            <Conversation user={user} setMobileView={setMobileView} />
             <StyledDivider />
           </Box>
         ))

@@ -30,7 +30,7 @@ const Text = styled(Typography)`
   color: rgba(0, 0, 0, 0.9);
 `;
 
-const Conversation = ({ user }) => {
+const Conversation = ({ user, setMobileView }) => {
   const { setPerson, account, newMessageFlag } = useContext(AccountContext);
 
   const [message, setMessage] = useState({});
@@ -46,11 +46,18 @@ const Conversation = ({ user }) => {
   const getUser = async () => {
     setPerson(user);
     await setConversation({ senderId: account.sub, receiverId: user.sub });
+    if (setMobileView) setMobileView("chat");
   };
   return (
     <Component onClick={() => getUser()}>
       <Box>
-        <Image src={user.picture || "/Images/Default-Avatar.jpg"} alt="dp" />
+        <Image
+          src={user.picture || "/Images/Default-Avatar.jpg"}
+          alt="dp"
+          onError={(e) => {
+            e.target.src = "/Images/Default-Avatar.jpg";
+          }}
+        />
       </Box>
       <Box style={{ width: "100%" }}>
         <Container>

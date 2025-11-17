@@ -6,7 +6,7 @@ import Messages from "./Messages";
 import { getConversation } from "../../../service/api";
 
 //main component
-const ChatBox = () => {
+const ChatBox = ({ setMobileView }) => {
   const { person, account } = useContext(AccountContext);
   const [conversation, setConversation] = useState({});
 
@@ -19,10 +19,10 @@ const ChatBox = () => {
   }, [person.sub]);
 
   return (
-    <Box style={{ height: "75%" }}>
-      <ChatHeader person={person} />
+    <Box style={{ height: "100%" }}>
+      <ChatHeader person={person} setMobileView={setMobileView} />
 
-      <Messages person={person} conversation={conversation} />
+      <Messages person={person} conversation={conversation} setMobileView={setMobileView} />
     </Box>
   );
 };

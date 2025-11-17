@@ -49,7 +49,7 @@ const Header = () => {
             toggleDrawer();
           }}
           onError={(e) => {
-            e.target.src = "../../../../public/Images/Default-Avatar.jpg"; // fallback if broken link
+            e.target.src = "/Images/Default-Avatar.jpg";
           }}
         />
         <Wrapper>

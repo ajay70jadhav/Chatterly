@@ -15,9 +15,17 @@ const Wrapper = styled(Box)`
 const Component = styled(Box)`
   height: 80vh;
   overflow-y: scroll;
+
+  @media (max-width: 768px) {
+    height: 75vh;
+  }
 `;
 const Container = styled(Box)`
   padding: 1px 80px;
+
+  @media (max-width: 768px) {
+    padding: 1px 10px;
+  }
 `;
 
 const Messages = ({ person, conversation }) => {

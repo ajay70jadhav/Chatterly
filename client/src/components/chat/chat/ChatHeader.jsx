@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Box, Typography, styled } from "@mui/material";
-import { Search, MoreVert } from "@mui/icons-material";
+import { Search, MoreVert, ArrowBack } from "@mui/icons-material";
 
 import { defaultProfilePicture } from "../../../constants/data/";
 
@@ -37,11 +37,23 @@ const RightContainer = styled(Box)`
   }
 `;
 
-const ChatHeader = ({ person }) => {
+const ChatHeader = ({ person, setMobileView }) => {
   const { activeUsers } = useContext(AccountContext);
   return (
     <Header>
-      <Image src={person.picture} alt="dp" />
+      {window.innerWidth <= 768 && (
+        <ArrowBack
+          onClick={() => setMobileView("menu")}
+          style={{ marginRight: 10, cursor: "pointer" }}
+        />
+      )}
+      <Image
+        src={person.picture}
+        alt="dp"
+        onError={(e) => {
+          e.target.src = "/Images/Default-Avatar.jpg";
+        }}
+      />
       <Box>
         <Name>{person.name}</Name>
         <Status>
