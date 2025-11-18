@@ -14,7 +14,7 @@ const BannerWrapper = styled(Paper)(({ theme }) => ({
   color: "white",
   borderRadius: "12px",
   boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
-  zIndex: 9999,
+  zIndex: 1300, // Lower z-index to avoid conflicts
   cursor: "pointer",
   overflow: "hidden",
   animation: "slideInRight 0.3s ease-out",
@@ -22,12 +22,13 @@ const BannerWrapper = styled(Paper)(({ theme }) => ({
   transition: "all 0.3s ease-out",
 
   "&.mobile": {
-    top: "10px",
+    top: "80px", // Position below header on mobile
     left: "50%",
     right: "auto",
     transform: "translateX(-50%)",
     width: "90%",
     maxWidth: "400px",
+    zIndex: 1200, // Even lower on mobile
   },
 
   "&.show": {
@@ -51,12 +52,13 @@ const BannerWrapper = styled(Paper)(({ theme }) => ({
   },
 
   [theme.breakpoints.down("md")]: {
-    top: "10px",
+    top: "80px",
     left: "50%",
     right: "auto",
     transform: "translateX(-50%)",
     width: "90%",
     maxWidth: "400px",
+    zIndex: 1200,
   },
 }));
 
@@ -131,10 +133,10 @@ const NotificationBanner = ({ notification, onClose, onClick, isMobile = false }
   }, []);
 
   useEffect(() => {
-    // Auto-close after 3 seconds
+    // Auto-close after 4 seconds (increased from 3)
     const timer = setTimeout(() => {
       handleClose();
-    }, 3000);
+    }, 4000);
     return () => clearTimeout(timer);
   }, []);
 

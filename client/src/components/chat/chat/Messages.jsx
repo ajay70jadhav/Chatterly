@@ -3,6 +3,7 @@ import { Box, styled } from "@mui/material";
 
 // Global state management for user accounts and socket connections
 import { AccountContext } from "../../../context/AccountProvider";
+import { NotificationContext } from "../../../context/NotificationContext";
 
 // API calls for messaging functionality
 import { newMessage, getMessages } from "../../../service/api";
@@ -12,7 +13,7 @@ import Footer from "./Footer";
 import Message from "./Message";
 
 const Wrapper = styled(Box)`
-  background-image: url(${"https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png"});
+  background-image: url(${`https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png`});
   background-size: 50%;
 `;
 
@@ -32,41 +33,41 @@ const Container = styled(Box)`
   }
 `;
 
-const Messages = ({ person, conversation }) => {
+const Messages = ({ person, conversation, conversationId }) => {
   // LOCAL STATE: Component-specific data that doesn't need global sharing
   const [value, setValue] = useState(""); // Current message input text
   const [messages, setMessages] = useState([]); // Chat messages for current conversation
   const [file, setFile] = useState(); // Selected file for sharing (currently disabled)
   const [image, setImage] = useState(""); // Image URL after file upload
-  const [incomingMessage, setIncomingMessage] = useState(null); // Real-time incoming messages
 
   // REFERENCE: For scrolling to bottom of chat when new messages arrive
   const scrollRef = useRef();
 
   // GLOBAL STATE: Shared across the entire app via AccountContext
   const { account, socket, newMessageFlag, setNewMessageFlag } = useContext(AccountContext);
-
-  // ===================== REAL-TIME MESSAGE LISTENER =====================
-  // Listens for incoming messages from other users via Socket.IO
-  useEffect(() => {
-    socket.current?.on("getMessage", (data) => {
-      // Add timestamp to incoming message and store it temporarily
-      setIncomingMessage({ ...data, createdAt: Date.now() });
-    });
-  }, [socket]);
+  const { addNotification } = useContext(NotificationContext);
 
   // ===================== LOAD CHAT HISTORY =====================
   // Fetches previous messages when user switches to a new conversation
   useEffect(() => {
     const getMessageDetails = async () => {
-      if (!conversation?._id) return; // Safety check: valid conversation required
+      if (!conversationId) {
+        setMessages([]); // Clear messages when no conversation
+        return;
+      }
 
       // Fetch all messages for this conversation from database
-      const data = await getMessages(conversation._id);
-      setMessages(data || []); // Set empty array if no messages found
+      try {
+        const data = await getMessages(conversationId);
+        setMessages(data || []); // Set empty array if no messages found
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+        setMessages([]);
+      }
     };
+
     getMessageDetails();
-  }, [conversation?._id, newMessageFlag]); // Reload when conversation changes or new message sent
+  }, [conversationId, newMessageFlag]); // Depend on conversationId and newMessageFlag
 
   // ===================== AUTO-SCROLL TO LATEST MESSAGE =====================
   // Automatically scrolls chat to bottom when new messages arrive
@@ -74,26 +75,50 @@ const Messages = ({ person, conversation }) => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]); // Trigger when messages array updates
 
-  // ===================== DISPLAY INCOMING MESSAGES =====================
-  // Adds real-time incoming messages to the chat display
+  // ===================== HANDLE INCOMING MESSAGES =====================
+  // Listen for incoming messages from AccountContext custom event
   useEffect(() => {
-    if (incomingMessage && conversation?.members?.includes(incomingMessage.senderId)) {
-      // Only show message if it's for the current conversation
-      setMessages((prev) => [...prev, incomingMessage]);
-    }
-  }, [incomingMessage, conversation]);
+    const handleIncomingMessage = (event) => {
+      const message = event.detail;
+
+      // Only show message if it's for the current conversation and from current person
+      if (message && person?.sub && message.senderId === person.sub && conversationId) {
+        setMessages((prev) => [...prev, { ...message, createdAt: Date.now() }]);
+
+        // Add notification for unread count
+        if (message.conversationId) {
+          addNotification({
+            senderId: message.senderId,
+            senderName: person.name,
+            messagePreview: message.text || "Sent a file/image",
+            messageType: message.type,
+            chatId: message.conversationId,
+            senderPicture: person.picture,
+          });
+        }
+      }
+    };
+
+    // Add event listener for incoming messages
+    window.addEventListener("incomingMessage", handleIncomingMessage);
+
+    // Cleanup listener
+    return () => {
+      window.removeEventListener("incomingMessage", handleIncomingMessage);
+    };
+  }, [socket, person?.sub, conversationId, addNotification, person]);
 
   const sendText = async (e) => {
     const code = e.keyCode || e.which;
     if (code === 13) {
-      if (!person?.sub || !conversation?._id) return; // <-- safety check
+      if (!person?.sub || !conversationId) return; // <-- safety check
 
       let message = {};
       if (!file) {
         message = {
           senderId: account.sub,
           receiverId: person.sub,
-          conversationId: conversation._id,
+          conversationId: conversationId,
           type: "text",
           text: value,
         };
@@ -101,7 +126,7 @@ const Messages = ({ person, conversation }) => {
         message = {
           senderId: account.sub,
           receiverId: person.sub,
-          conversationId: conversation._id,
+          conversationId: conversationId,
           type: "file",
           text: image,
         };
@@ -119,7 +144,7 @@ const Messages = ({ person, conversation }) => {
   };
 
   // If conversation or person is missing, show empty chat
-  if (!person || !conversation)
+  if (!person || !conversationId)
     return <p style={{ textAlign: "center", marginTop: "20px" }}>No conversation selected</p>;
 
   return (
@@ -144,122 +169,3 @@ const Messages = ({ person, conversation }) => {
 };
 
 export default Messages;
-
-//old code
-
-// import { useContext, useState, useEffect, useRef } from "react";
-// import { Box, styled } from "@mui/material";
-// import { AccountContext } from "../../../context/AccountProvider";
-// //api
-// import { newMessage, getMessages } from "../../../service/api";
-// //components
-// import Footer from "./Footer";
-// import Message from "./Message";
-
-// const Wrapper = styled(Box)`
-//   background-image: url(${"https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png"});
-//   background-size: 50%;
-// `;
-
-// const Component = styled(Box)`
-//   height: 80vh;
-//   overflow-y: scroll;
-// `;
-// const Container = styled(Box)`
-//   padding: 1px 80px;
-// `;
-
-// const Messages = ({ person, conversation }) => {
-//   const [value, setValue] = useState("");
-//   const [messages, setMessages] = useState([]);
-//   const [file, setFile] = useState();
-//   const [image, setImage] = useState("");
-//   const [incomingMessage, setIncomingMessage] = useState(null);
-
-//   const scrollRef = useRef();
-
-//   const { account, socket, newMessageFlag, setNewMessageFlag } = useContext(AccountContext);
-
-//   useEffect(() => {
-//     socket.current.on("getMessage", (data) => {
-//       setIncomingMessage({ ...data, createdAt: Date.now() });
-//     });
-//   }, []);
-
-//   useEffect(() => {
-//     const getMessageDetails = async () => {
-//       let data = await getMessages(conversation._id);
-//       setMessages(data);
-//     };
-//     conversation._id && getMessageDetails();
-//   }, [person._id, conversation._id, newMessageFlag]);
-
-//   useEffect(() => {
-//     scrollRef.current?.scrollIntoView({ transition: "smooth" });
-//   }, [messages]);
-
-//   useEffect(() => {
-//     incomingMessage &&
-//       conversation?.members?.includes(incomingMessage.senderId) &&
-//       setMessages((prev) => [...prev, incomingMessage]);
-//   }, [incomingMessage, conversation]);
-
-//   const sendText = async (e) => {
-//     const code = e.keyCode || e.which;
-
-//     if (code === 13) {
-//       let message = {};
-//       if (!file) {
-//         message = {
-//           senderId: account.sub,
-//           receiverId: person.sub,
-//           conversationId: conversation._id,
-//           type: "text",
-//           text: value,
-//         };
-//       } else {
-//         message = {
-//           senderId: account.sub,
-//           receiverId: person.sub,
-//           conversationId: conversation._id,
-//           type: "file",
-//           text: image,
-//         };
-//       }
-
-//       socket.current.emit("sendMessage", message); //here i am sending the message in real time to the socket server
-
-//       // console.log("📤 Sending message:", message);
-//       await newMessage(message);
-
-//       setValue("");
-//       setFile("");
-//       setImage("");
-
-//       setNewMessageFlag((prev) => !prev);
-//     }
-//   };
-
-//   return (
-//     <Wrapper>
-//       <Component>
-//         {messages &&
-//           messages.map((message) => (
-//             <Container ref={scrollRef}>
-//               <Message message={message} />
-//             </Container>
-//           ))}
-//       </Component>
-//       <Footer
-//         sendText={sendText}
-//         setValue={setValue}
-//         value={value}
-//         file={file}
-//         setFile={setFile}
-//         setImage={setImage}
-//       />
-//     </Wrapper>
-//   );
-// };
-
-// export default Messages;
