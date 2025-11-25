@@ -18,18 +18,31 @@ const Wrapper = styled(Box)`
 `;
 
 const Component = styled(Box)`
-  height: 80vh;
-  overflow-y: scroll;
+  height: calc(100vh - 179px);
+  overflow-y: auto;
+  overflow-x: hidden;
 
   @media (max-width: 768px) {
-    height: 75vh;
+    height: calc(100vh - 134px);
+  }
+
+  @media (max-height: 600px) {
+    height: calc(100vh - 154px);
   }
 `;
 const Container = styled(Box)`
-  padding: 1px 80px;
+  padding: 1px min(80px, 8vw);
+
+  @media (max-width: 1200px) {
+    padding: 1px min(60px, 6vw);
+  }
 
   @media (max-width: 768px) {
-    padding: 1px 10px;
+    padding: 1px min(20px, 4vw);
+  }
+
+  @media (max-width: 480px) {
+    padding: 1px min(10px, 3vw);
   }
 `;
 

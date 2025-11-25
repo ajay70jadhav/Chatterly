@@ -6,12 +6,17 @@ import { AccountContext } from "../../../context/AccountProvider";
 import Conversation from "./Conversation";
 
 const Component = styled(Box)`
-  height: 81vh;
-  overflow: overlay;
+  height: calc(100vh - 125px);
+  overflow-y: auto;
+  overflow-x: hidden;
 
   @media (max-width: 768px) {
-    height: auto;
+    height: calc(100vh - 80px);
     flex: 1;
+  }
+
+  @media (max-height: 600px) {
+    height: calc(100vh - 100px);
   }
 `;
 

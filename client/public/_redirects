@@ -1,0 +1,8 @@
+# Netlify redirects for SPA
+/*    /index.html   200
+
+# API redirects - uncomment and update as needed
+# /api/*  https://your-backend-domain.com/api/:splat  200
+
+# Force HTTPS
+http://localhost:3000/*  https://localhost:3000/:splat  200!
