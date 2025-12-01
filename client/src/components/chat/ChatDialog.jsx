@@ -46,18 +46,43 @@ const RightComponent = styled(Box)`
   }
 `;
 const dialogstyle = {
-  height: "95%",
+  height: "95vh",
   width: "100%",
   margin: "20px",
   borderRadius: 0,
-  maxWidth: "100%",
-  maxHeight: "100%",
+  maxWidth: "calc(100vw - 40px)",
+  maxHeight: "95vh",
   boxShadow: "none",
   overflow: "hidden",
+  padding: 0,
+  position: "relative",
+
+  "& .MuiDialog-paper": {
+    height: "100%",
+    width: "100%",
+    maxWidth: "100%",
+    maxHeight: "100%",
+    margin: 0,
+    padding: 0,
+    borderRadius: 0,
+    boxShadow: "none",
+    overflow: "hidden",
+    position: "relative",
+  },
 
   "@media (max-width: 768px)": {
     height: "calc(100vh - 80px)",
-    margin: "0",
+    width: "100vw",
+    margin: 0,
+    maxWidth: "100vw",
+    maxHeight: "calc(100vh - 80px)",
+
+    "& .MuiDialog-paper": {
+      height: "100%",
+      width: "100%",
+      maxWidth: "100%",
+      maxHeight: "100%",
+    },
   },
 };
 const ChatDialog = () => {
