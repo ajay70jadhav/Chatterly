@@ -28,84 +28,7 @@ const AccountProvider = ({ children }) => {
     // - Online/offline status updates
     // - Typing indicators (future feature)
     socket.current = io("https://chatterly-socketio.onrender.com/");
-
-    // Cleanup socket connection on unmount
-    return () => {
-      if (socket.current) {
-        socket.current.disconnect();
-      }
-    };
   }, []);
-
-  // ===================== SOCKET.IO EVENT LISTENERS =====================
-  // Single consolidated listener for all socket events
-  useEffect(() => {
-    if (!socket.current) return;
-
-    // Handle incoming real-time messages
-    const handleIncomingMessage = (data) => {
-      // Add timestamp to incoming message
-      const messageWithTimestamp = { ...data, createdAt: Date.now() };
-
-      // Trigger a custom event that can be listened to by components
-      window.dispatchEvent(
-        new CustomEvent("incomingMessage", {
-          detail: messageWithTimestamp,
-        })
-      );
-    };
-
-    // Handle new message notifications
-    const handleNewMessageNotification = (data) => {
-      // Only show notification if not currently viewing the chat
-      if (person.sub !== data.senderId) {
-        // Trigger notification event
-        window.dispatchEvent(new CustomEvent("newMessageNotification", { detail: data }));
-      }
-    };
-
-    // Handle offline notifications when user comes online
-    const handleOfflineNotifications = (notifications) => {
-      notifications.forEach((notif) => {
-        // Only show notifications for chats not currently being viewed
-        if (person.sub !== notif.senderId) {
-          window.dispatchEvent(new CustomEvent("newMessageNotification", { detail: notif }));
-        }
-      });
-    };
-
-    // Register all socket event listeners
-    socket.current.on("getMessage", handleIncomingMessage);
-    socket.current.on("newMessageNotification", handleNewMessageNotification);
-    socket.current.on("getOfflineNotifications", handleOfflineNotifications);
-
-    // Handle online users updates
-    socket.current.on("getUsers", (users) => {
-      setActiveUsers(users);
-    });
-
-    // Cleanup function to remove all listeners
-    return () => {
-      socket.current?.off("getMessage", handleIncomingMessage);
-      socket.current?.off("newMessageNotification", handleNewMessageNotification);
-      socket.current?.off("getOfflineNotifications", handleOfflineNotifications);
-      socket.current?.off("getUsers");
-    };
-  }, [socket, person.sub]); // Re-register when person changes
-
-  // ===================== SOCKET USER MANAGEMENT =====================
-  // Manage user online/offline status
-  useEffect(() => {
-    if (!socket.current || !account?.sub) return;
-
-    // Tell socket server this user is now active (online)
-    socket.current.emit("addUsers", account);
-
-    // Cleanup when account changes
-    return () => {
-      // User disconnection will be handled by socket cleanup
-    };
-  }, [socket, account?.sub]);
 
   // ===================== PROVIDE GLOBAL STATE =====================
   // Makes all state variables and functions available to any component
@@ -119,7 +42,7 @@ const AccountProvider = ({ children }) => {
         socket, // Socket.IO connection for real-time messaging
         activeUsers, // Array of currently online users
         setActiveUsers, // Function to update online users list
-        newMessageFlag, // Boolean to trigger message refresh
+        newMessageFlag, // Boolean to trigger message list refresh
         setNewMessageFlag, // Function to toggle message refresh flag
       }}
     >
@@ -130,3 +53,48 @@ const AccountProvider = ({ children }) => {
 };
 
 export default AccountProvider;
+
+/////////////////////////////////////////
+//============OLD CODE=========//
+/*
+
+import { createContext, useState, useRef, useEffect } from "react";
+
+import { io } from "socket.io-client";
+
+export const AccountContext = createContext(null);
+
+const AccountProvider = ({ children }) => {
+  const [account, setAccount] = useState();
+  const [person, setPerson] = useState({});
+  const [activeUsers, setActiveUsers] = useState([]);
+  const [newMessageFlag, setNewMessageFlag] = useState(false);
+
+  const socket = useRef();
+
+  useEffect(() => {
+    socket.current = io("ws://localhost:9000");
+  }, []);
+
+  return (
+    <AccountContext.Provider
+      value={{
+        account,
+        setAccount,
+        person,
+        setPerson,
+        socket,
+        activeUsers,
+        setActiveUsers,
+        newMessageFlag,
+        setNewMessageFlag,
+      }}
+    >
+      {children}
+    </AccountContext.Provider>
+  );
+};
+
+export default AccountProvider;
+
+*/

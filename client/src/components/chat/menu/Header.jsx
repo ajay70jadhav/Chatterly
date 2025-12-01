@@ -29,21 +29,9 @@ const Wrapper = styled(Box)`
 `;
 
 const Image = styled("img")({
-  height: "min(40px, 8vw)",
-  width: "min(40px, 8vw)",
-  maxHeight: "40px",
-  maxWidth: "40px",
-  minHeight: "32px",
-  minWidth: "32px",
+  height: 40,
+  width: 40,
   borderRadius: "50%",
-  objectFit: "cover",
-
-  "@media (max-width: 480px)": {
-    height: "min(32px, 10vw)",
-    width: "min(32px, 10vw)",
-    maxHeight: "32px",
-    maxWidth: "32px",
-  },
 });
 const Header = () => {
   const [openDrawer, setOpenDrawer] = useState(false);

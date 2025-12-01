@@ -14,25 +14,11 @@ const Component = styled(Box)`
   }
 `;
 const LeftComponent = styled(Box)`
-  width: 27%;
-  min-width: 300px;
-  max-width: 400px;
-  height: 100%;
-
-  @media (max-width: 1200px) {
-    width: 30%;
-    min-width: 280px;
-  }
-
-  @media (max-width: 900px) {
-    width: 35%;
-    min-width: 250px;
-  }
+  min-width: 450px;
 
   @media (max-width: 768px) {
-    width: 100%;
     min-width: auto;
-    max-width: 100%;
+    width: 100%;
     height: 100%;
 
     .show-chat & {
@@ -42,18 +28,9 @@ const LeftComponent = styled(Box)`
 `;
 const RightComponent = styled(Box)`
   width: 73%;
-  min-width: 0;
-  flex: 1;
+  min-width: 300px;
   height: 100%;
   border-left: 1px solid rgba(0, 0, 0, 0.14);
-
-  @media (max-width: 1200px) {
-    width: 70%;
-  }
-
-  @media (max-width: 900px) {
-    width: 65%;
-  }
 
   @media (max-width: 768px) {
     width: 100%;

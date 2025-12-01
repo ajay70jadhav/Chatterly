@@ -14,21 +14,10 @@ const Header = styled(Box)`
   align-items: center;
 `;
 const Image = styled("img")({
-  height: "min(40px, 8vw)",
-  width: "min(40px, 8vw)",
-  maxHeight: "40px",
-  maxWidth: "40px",
-  minHeight: "32px",
-  minWidth: "32px",
+  height: 40,
+  width: 40,
   objectFit: "cover",
   borderRadius: "50%",
-
-  "@media (max-width: 480px)": {
-    height: "min(32px, 10vw)",
-    width: "min(32px, 10vw)",
-    maxHeight: "32px",
-    maxWidth: "32px",
-  },
 });
 const Name = styled(Typography)`
   margin-left: 12px !important;

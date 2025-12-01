@@ -1,8 +1,7 @@
 import { useContext } from "react";
+
 import { AppBar, Box, Toolbar, styled } from "@mui/material";
 import { AccountContext } from "../context/AccountProvider";
-import { NotificationContext } from "../context/NotificationContext";
-import NotificationBanner from "./notifications/NotificationBanner";
 
 //components
 import LoginDialog from "./account/LoginDialog";
@@ -32,8 +31,6 @@ const LoginHeader = styled(AppBar)`
 `;
 const Messanger = () => {
   const { account } = useContext(AccountContext);
-  const { notifications } = useContext(NotificationContext);
-
   return (
     <Component>
       {account ? (
@@ -42,15 +39,6 @@ const Messanger = () => {
             <Toolbar></Toolbar>
           </Header>
           <ChatDialog />
-
-          {/* Notification Banners */}
-          {notifications.map((notification) => (
-            <NotificationBanner
-              key={notification.id}
-              notification={notification}
-              isMobile={false}
-            />
-          ))}
         </>
       ) : (
         <>
