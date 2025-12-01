@@ -57,41 +57,30 @@ const dialogstyle = {
   padding: 0,
   position: "relative",
 
-  "& .MuiDialog-paper": {
-    height: "100%",
-    width: "100%",
-    maxWidth: "100%",
-    maxHeight: "100%",
-    margin: 0,
-    padding: 0,
-    borderRadius: 0,
-    boxShadow: "none",
-    overflow: "hidden",
-    position: "relative",
-  },
-
   "@media (max-width: 768px)": {
     height: "calc(100vh - 80px)",
     width: "100vw",
     margin: 0,
     maxWidth: "100vw",
     maxHeight: "calc(100vh - 80px)",
-
-    "& .MuiDialog-paper": {
-      height: "100%",
-      width: "100%",
-      maxWidth: "100%",
-      maxHeight: "100%",
-    },
   },
 };
+
 const ChatDialog = () => {
   const { person } = useContext(AccountContext);
   const [mobileView, setMobileView] = useState("menu");
 
   return (
     <>
-      <Dialog open={true} slotProps={{ paper: { sx: dialogstyle } }} hideBackdrop={true}>
+      <Dialog
+        open={true}
+        hideBackdrop={true}
+        fullWidth
+        maxWidth={false}
+        PaperProps={{
+          sx: dialogstyle,
+        }}
+      >
         <Component className={mobileView === "chat" ? "show-chat" : ""}>
           <LeftComponent>
             <Menu setMobileView={setMobileView} />
