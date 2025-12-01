@@ -21,56 +21,21 @@ const io = new Server(httpServer, {
 // Log that server is starting
 console.log(`⚡ Socket.IO server will run on port ${PORT}`);
 
-// Map to store connected users with socketId as key
-// onlineUsers[userId] = { socketId, userData }
-let onlineUsers = new Map();
+// Array to store connected users
+let users = [];
 
-// Array to store offline notifications for users
-// offlineNotifications[userId] = [{ senderId, senderName, messagePreview, chatId, timestamp }]
-let offlineNotifications = new Map();
-
-// Function to add a user to online users map
+// Function to add a user if not already connected
 const addUser = (userData, socketId) => {
-  const userId = userData.sub;
-  onlineUsers.set(userId, { socketId, userData });
-
-  // Remove any existing offline notifications for this user
-  if (offlineNotifications.has(userId)) {
-    offlineNotifications.delete(userId);
+  // Check if user already exists by their 'sub' ID
+  if (!users.some((user) => user.sub === userData.sub)) {
+    // Add user to users array with their socketId
+    users.push({ ...userData, socketId });
   }
 };
 
 // Function to get a user by their ID
 const getUser = (userId) => {
-  return onlineUsers.get(userId);
-};
-
-// Function to check if user is online
-const isUserOnline = (userId) => {
-  return onlineUsers.has(userId);
-};
-
-// Function to store offline notification
-const storeOfflineNotification = (receiverId, notificationData) => {
-  if (!offlineNotifications.has(receiverId)) {
-    offlineNotifications.set(receiverId, []);
-  }
-
-  const notifications = offlineNotifications.get(receiverId);
-  notifications.push({
-    ...notificationData,
-    timestamp: new Date().toISOString(),
-  });
-
-  // Keep only last 50 notifications per user to prevent memory issues
-  if (notifications.length > 50) {
-    notifications.shift();
-  }
-};
-
-// Function to get offline notifications for a user
-const getOfflineNotifications = (userId) => {
-  return offlineNotifications.get(userId) || [];
+  return users.find((user) => user.sub === userId);
 };
 
 // Listen for new socket connections
@@ -80,16 +45,8 @@ io.on("connection", (socket) => {
   // Event: Add a new user to the users list
   socket.on("addUsers", (userData) => {
     addUser(userData, socket.id);
-
-    // Convert Map to Array for backwards compatibility
-    const usersArray = Array.from(onlineUsers.values()).map((entry) => entry.userData);
-    io.emit("getUsers", usersArray);
-
-    // Send offline notifications if any
-    const offlineNotifs = getOfflineNotifications(userData.sub);
-    if (offlineNotifs.length > 0) {
-      socket.emit("getOfflineNotifications", offlineNotifs);
-    }
+    // Emit updated users list to all connected clients
+    io.emit("getUsers", users);
   });
 
   // Event: Send a message from one user to another
@@ -98,43 +55,15 @@ io.on("connection", (socket) => {
     if (user) {
       // Send the message only to the receiver's socket
       io.to(user.socketId).emit("getMessage", data);
-
-      // Send notification to receiver if they're online and not the sender
-      if (user.userData.sub !== data.senderId) {
-        io.to(user.socketId).emit("newMessageNotification", {
-          senderId: data.senderId,
-          senderName: data.senderName,
-          messagePreview: data.text || "Sent a file/image",
-          messageType: data.type,
-          chatId: data.conversationId,
-          timestamp: new Date().toISOString(),
-        });
-      }
-    } else {
-      // User is offline, store notification
-      storeOfflineNotification(data.receiverId, {
-        senderId: data.senderId,
-        senderName: data.senderName,
-        messagePreview: data.text || "Sent a file/image",
-        messageType: data.type,
-        chatId: data.conversationId,
-      });
     }
   });
 
   // Event: Handle user disconnect
   socket.on("disconnect", () => {
-    // Remove user from online users map
-    for (const [userId, userData] of onlineUsers) {
-      if (userData.socketId === socket.id) {
-        onlineUsers.delete(userId);
-        break;
-      }
-    }
-
-    // Convert Map to Array for backwards compatibility
-    const usersArray = Array.from(onlineUsers.values()).map((entry) => entry.userData);
-    io.emit("getUsers", usersArray);
+    // Remove user from users array
+    users = users.filter((user) => user.socketId !== socket.id);
+    // Update all clients with new users list
+    io.emit("getUsers", users);
   });
 });
 

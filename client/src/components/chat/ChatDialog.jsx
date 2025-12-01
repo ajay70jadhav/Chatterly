@@ -5,6 +5,7 @@ import { AccountContext } from "../../context/AccountProvider";
 import Menu from "./menu/Menu";
 import EmptyChat from "./chat/EmptyChat";
 import ChatBox from "./chat/ChatBox";
+// Styled components
 const Component = styled(Box)`
   display: flex;
   height: 100%;
